@@ -1,0 +1,5 @@
+resources:
+  - screeps/
+  - mongo/
+  - redis/
+namespace: screeps

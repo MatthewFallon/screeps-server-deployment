@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: screeps
+spec:
+  selector:
+    matchLabels:
+      app: screeps
+  template:
+    metadata:
+      labels:
+        app: screeps
+    spec:
+      containers:
+      - name: screeps
+        image: screepers/screeps-launcher
+        # command:
+        #   - "/bin/sh"
+        #   - "-c"
+        #   - "--"
+        # args:
+        #   - "while true; do sleep 30; done;"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2048Mi"
+            cpu: "2000m"
+        env:
+          - name: STEAM_KEY
+            valueFrom:
+              secretKeyRef:
+                name: steam-key
+                key: STEAM_KEY
+          - name: MONGO_HOST
+            value: mongo
+          # This needs to be set explicitly, the service will override it in env otherwise.
+          # May be reccomendable to rename the service unsure what the best practice is
+          # but i like having the neat looking dns of mongo
+          - name: MONGO_PORT
+            value: "27017"
+          - name: REDIS_HOST
+            value: redis
+        volumeMounts:
+          - mountPath: /screeps/
+            name: screeps-data
+          - mountPath: /screeps/config.yml
+            subPath: config.yml
+            name: config
+            readOnly: true
+        ports:
+        - containerPort: 25015
+          name: screeps
+      volumes:
+      - name: screeps-data
+        
+      - name: config
+        configMap:
+          name: screeps-config
+          items:
+            - key: config.yml
+              path: config.yml

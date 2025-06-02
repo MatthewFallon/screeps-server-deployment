@@ -1,0 +1,7 @@
+resources:
+  - deployment.yaml
+
+configMapGenerator:
+  - name: screeps-config
+    files:
+      - config.yml
