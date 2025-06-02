@@ -6,6 +6,8 @@ spec:
   selector:
     matchLabels:
       app: screeps
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -14,12 +16,6 @@ spec:
       containers:
       - name: screeps
         image: screepers/screeps-launcher
-        # command:
-        #   - "/bin/sh"
-        #   - "-c"
-        #   - "--"
-        # args:
-        #   - "while true; do sleep 30; done;"
         resources:
           requests:
             memory: "512Mi"
@@ -51,13 +47,14 @@ spec:
             readOnly: true
         ports:
         - containerPort: 25015
-          name: screeps
+          name: screeps-port
       volumes:
       - name: screeps-data
-        
+        persistentVolumeClaim:
+          claimName: screeps-data-claim
       - name: config
         configMap:
           name: screeps-config
           items:
             - key: config.yml
-              path: config.yml
+              path: config.yml    

@@ -1,5 +1,7 @@
 resources:
   - deployment.yaml
+  - service.yaml
+  - pvc.yaml
 
 configMapGenerator:
   - name: screeps-config
