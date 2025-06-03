@@ -24,8 +24,8 @@ spec:
               memory: "128Mi"
               cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "2048Mi"
+              cpu: "1000m"
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
