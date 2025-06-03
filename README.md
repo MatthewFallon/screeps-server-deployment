@@ -6,29 +6,77 @@ This includes everything except for the final public port opening, I didn't want
 
 ## How to use this
 
-Fork this repo, and modify the config.yml to meet your needs. 
+Fork this repo, and modify the config.yml to meet your needs.
 
 You will need 2 resources to exist in your repo in advance:
+
 - A namspace, my default is screeps you can change this in the root kustomization.yaml and run the below (substituting your namespace if modified):
+
 ```bash
 kubectl create namespace screeps
 # Run this command to set your context for kubectl to the namespace
 # or append -n namespace on every command that follows
 kubectl config set-context --current --namespace screeps
-``` 
-- Your [steam API key](https://steamcommunity.com/dev/apikey) as a secret in the namespace 
+```
+
+- Your [steam API key](https://steamcommunity.com/dev/apikey) as a secret in the namespace
+
 ```bash
 kubectl create secret generic steam-key --from-literal=STEAM_KEY=<insert_your_steam_key_here>
 ```
 
 Then you can run:
+
 ```bash
 kubectl apply -k base/
 ```
+
 to apply this config, you can utilize this config with argocd or others pretty easily to allow editing the config and redeploying as needed.
 
-After this you will need to *potentially* restart the pod after running a command to reinit the db as mongo. To do so you will need to wait for the the screeps pod to be fully running by watching it with:
+After this you will need to _potentially_ restart the pod after running a command to reinit the db as mongo. To do so you will need to wait for the the screeps pod to be fully running by watching it with:
+
 ```bash
 kubectl logs --follow deployments/screeps
 ```
+
 Then afterwards exec in to the screeps cli and run system.resetAllData(). this command will seemingly hang the cli in the front, but will complete in the background. afterwards you can simply delete the running pod (this will require either having bash complete or finding the pod first with `kubectl get pods`)
+
+## (Optional) ArgoCD Application YAML
+
+If not setup from previous steps, will still require namespace to be created (`screeps`) along with [steam API key](https://steamcommunity.com/dev/apikey) running the following commands
+
+```bash
+kubectl create namespace screeps
+# Run this command to set your context for kubectl to the namespace
+# or append -n namespace on every command that follows
+kubectl config set-context --current --namespace screeps
+# Provide steam API key here
+kubectl create secret generic steam-key --from-literal=STEAM_KEY=<insert_your_steam_key_here>
+```
+
+Once this is run, in ArgoCD UI:
+
+- create a project with the name `screeps`
+- provide the repo `https://github.com/MatthewFallon/screeps-server-deployment.git` as a source repository
+- provide destination with server,name,namespace
+- create application with below yaml config
+- pray it works first time 😊
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: screeps-server
+spec:
+  destination:
+    name: in-cluster
+    namespace: screeps
+  source:
+    path: base
+    repoURL: https://github.com/MatthewFallon/screeps-server-deployment.git
+    targetRevision: HEAD
+    kustomize:
+      namespace: screeps
+  sources: []
+  project: screeps
+```
