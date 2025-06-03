@@ -46,7 +46,7 @@ spec:
             name: config
             readOnly: true
         ports:
-        - containerPort: 25015
+        - containerPort: 21025
           name: screeps-port
       volumes:
       - name: screeps-data

@@ -6,5 +6,5 @@ spec:
   selector:
     app: screeps
   ports:
-  - port: 25015
+  - port: 21025
     targetPort: screeps-port
